@@ -1,4 +1,87 @@
-```markdown
+
+# Setup and Initial Commands
+
+ ## 1. Start the Simulation
+
+   -  `cd xfs_sim`
+   -  `./bin/xfs_sim`
+
+ ## 2. Initial System Setup
+
+    - XFS_SIM> help
+    - XFS_SIM> format
+    - XFS_SIM> mount
+
+  Basic File Operations
+
+  ## 3. Create Files
+
+       1 # Create a file with specific name
+       2 XFS_SIM> create mydoc.txt
+       3 
+       4 # Create a file with default name
+       5 XFS_SIM> create
+
+ ## 4. Write to Files
+
+       1 # Write using filename (recommended)
+       2 XFS_SIM> write mydoc.txt "Hello, XFS filesystem!"
+       3 
+       4 # Write using inode number (alternative)
+       5 XFS_SIM> write 1 "Hello, XFS filesystem!"
+       6 
+       7 # Write longer content
+       8 XFS_SIM> write file2.txt "This is a longer piece of content to demonstrate extent allocation."
+
+##  5. Read Files
+
+    1 # Read using filename
+    2 XFS_SIM> read mydoc.txt
+    3 
+    4 # Read using inode number
+    5 XFS_SIM> read 1
+
+##  6. List and Inspect Files
+
+    1 # List all files in the system
+    2 XFS_SIM> ls
+    3 
+    4 # List files (alternative command)
+    5 XFS_SIM> list
+    6 
+    7 # View detailed metadata for a specific file
+    8 XFS_SIM> inspect mydoc.txt
+    9 
+    10 # View metadata using inode number
+    11 XFS_SIM> inspect 1
+
+  Advanced Metadata Inspection
+
+ ## 7. System-Level Metadata
+
+    1 # View superblock information (after formatting)
+    2 XFS_SIM> superblock
+    3 
+    4 # View Allocation Group Free Space (AGF) for AG 0
+    5 XFS_SIM> agf 0
+    6 
+    7 # View Allocation Group Inode (AGI) for AG 0
+    8 XFS_SIM> agi 0
+    9 
+    10 # View summary of all Allocation Groups
+    11 XFS_SIM> ag_summary
+
+##  8. Journal and Transaction Monitoring
+
+       1 # Check current transaction log status
+       2 XFS_SIM> log
+       3 
+       4 # Run a barrier test to see the barrier mechanism
+       5 XFS_SIM> barrier_test
+
+
+
+
 # XFS Filesystem Simulation: Core Architecture and Design
 
 This document outlines the core architectural components and design features of the XFS Filesystem Simulation implemented in user space.
@@ -12,9 +95,9 @@ This document outlines the core architectural components and design features of 
 **Purpose:** Implements a virtual disk in user space using a large `malloc`'d memory buffer.
 
 **Implementation Details:**
-- **`DISK_MEMORY`:** Global `uint8_t*` buffer acting as the entire virtual disk.
-- **`disk_init(size_t)`:** Allocates the memory buffer and initializes it to zeros.
-- **`disk_read/disk_write`:** Use `memcpy` for operations with bounds checking.
+- **`DISK_MEMORY`**: Global `uint8_t*` buffer acting as the entire virtual disk.
+- **`disk_init(size_t)`**: Allocates the memory buffer and initializes it to zeros.
+- **`disk_read/disk_write`**: Use `memcpy` for operations with bounds checking.
 - Simulates the behavior of physical storage while remaining in user space.
 
 **Key Features:**
@@ -27,11 +110,11 @@ This document outlines the core architectural components and design features of 
 **Purpose:** Defines the fundamental XFS metadata structures that mirror real XFS kernel structures.
 
 **Key Structures:**
-- **`xfs_sb_t`:** Contains filesystem-wide information (magic number, block size, total blocks, AG count).
-- **`xfs_agf_t`:** Represents Allocation Group Free Space (free blocks, longest free space, free space bitmap).
-- **`xfs_agi_t`:** Represents Allocation Group Inode information.
-- **`xfs_extent_t`:** Maps logical file offsets to physical disk blocks.
-- **`xfs_inode_t`:** Contains file metadata including the extent list.
+- **`xfs_sb_t`**: Contains filesystem-wide information (magic number, block size, total blocks, AG count).
+- **`xfs_agf_t`**: Represents Allocation Group Free Space (free blocks, longest free space, free space bitmap).
+- **`xfs_agi_t`**: Represents Allocation Group Inode information.
+- **`xfs_extent_t`**: Maps logical file offsets to physical disk blocks.
+- **`xfs_inode_t`**: Contains file metadata including the extent list.
 
 **Design Significance:**
 - Extent-based storage model that efficiently handles large files.
@@ -79,7 +162,7 @@ Implements XFS journaling mechanism ensuring metadata consistency with write bar
     - Creates a special barrier transaction in the log queue.
     - Blocks the calling thread using custom synchronization.
     - Waits until the log worker processes all prior transactions.
-    - **Ensures Ordering:** metadata changes are logged before being applied.
+    - **Ensures Ordering:** Metadata changes are logged before being applied.
 
 ### 3.5 Synchronization Implementation
 - **Custom Barrier Sync:** Instead of deprecated semaphores, uses `pthread_mutex` and `pthread_cond`.
@@ -204,4 +287,3 @@ This XFS simulation successfully demonstrates the core architectural principles 
 - **Write Barriers:** Critical ordering guarantees for metadata.
 
 The simulation provides a realistic, interactive demonstration of how XFS handles the complex challenges of concurrent access, metadata consistency, and performance optimization in a user-space environment. Each component works in concert to provide a faithful simulation of XFS behavior while remaining comprehensible and educational.
-```
